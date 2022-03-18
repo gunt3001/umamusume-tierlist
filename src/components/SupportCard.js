@@ -13,7 +13,7 @@ function SupportCard(props) {
     }
 
     return (
-        <div className="support-card">
+        <div className={"support-card" + (props.faded ? " faded" : "")}>
             <img
                 className="support-card-image"
                 name={props.id}

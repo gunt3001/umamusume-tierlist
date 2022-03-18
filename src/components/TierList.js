@@ -29,6 +29,7 @@ function TierList(props) {
 
         rows[current_row].push((
             <SupportCard
+                faded={props.selectedCards.find((c) => c.id === processedCards[i].id)}
                 id={processedCards[i].id}
                 lb={processedCards[i].lb}
                 score={processedCards[i].score}
