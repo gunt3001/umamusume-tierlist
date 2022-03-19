@@ -29,13 +29,13 @@ function TierList(props) {
 
         rows[current_row].push((
             <SupportCard
-                faded={props.selectedCards.find((c) => c.id === processedCards[i].id)}
                 id={processedCards[i].id}
                 lb={processedCards[i].lb}
                 score={processedCards[i].score}
                 key={processedCards[i].id + "LB" + processedCards[i].lb}
                 info={processedCards[i].info}
                 charName={processedCards[i].char_name}
+                faded={props.selectedCards.find((c) => c.id === processedCards[i].id)}
                 onClick={() => props.cardSelected(cards.find((c) => c.id === processedCards[i].id && c.limit_break === processedCards[i].lb))}
             />
         ));
