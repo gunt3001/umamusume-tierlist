@@ -23,7 +23,7 @@ function defaultState() {
                 [3,0,3,8,0,2,22],
                 [2,0,0,0,8,3,0]
             ],
-            umaBonus: [1,1,1,1,1,1],
+            umaBonus: [0,0,0,0,0,0],
             multi: 1.4,
             motivation: 0.2
         },
@@ -295,19 +295,18 @@ class Weights extends React.Component {
                 <div className="weight-row">
                     <div class="section-header">Uma's Bonuses</div>
                     <div class="section-explanation">
-                        The percentages on the uma's stat screen, converted to decimal. <br/>
-                        For example, 10% is 1.1, and 15% is 1.15.
+                        The percentages on the uma's stat screen<br/>
                     </div>
                     <label for="umaBonus.0">Speed</label>
-                    <NumericInput onChange={this.onGeneralSettingChanged} type="number" id="umaBonus.0" value={this.state.general.umaBonus[0]} min={0.7} max={1.3} step={0.01}/>
+                    <NumericInput onChange={this.onGeneralSettingChanged} type="number" id="umaBonus.0" value={this.state.general.umaBonus[0]} min={-30} max={30} step={1}/> %
                     <label for="umaBonus.1">Stamina</label>
-                    <NumericInput onChange={this.onGeneralSettingChanged} type="number" id="umaBonus.1" value={this.state.general.umaBonus[1]} min={0.7} max={1.3} step={0.01}/>
+                    <NumericInput onChange={this.onGeneralSettingChanged} type="number" id="umaBonus.1" value={this.state.general.umaBonus[1]} min={-30} max={30} step={1}/> %
                     <label for="umaBonus.2">Power</label>
-                    <NumericInput onChange={this.onGeneralSettingChanged} type="number" id="umaBonus.2" value={this.state.general.umaBonus[2]} min={0.7} max={1.3} step={0.01}/>
+                    <NumericInput onChange={this.onGeneralSettingChanged} type="number" id="umaBonus.2" value={this.state.general.umaBonus[2]} min={-30} max={30} step={1}/> %
                     <label for="umaBonus.3">Guts</label>
-                    <NumericInput onChange={this.onGeneralSettingChanged} type="number" id="umaBonus.3" value={this.state.general.umaBonus[3]} min={0.7} max={1.3} step={0.01}/>
+                    <NumericInput onChange={this.onGeneralSettingChanged} type="number" id="umaBonus.3" value={this.state.general.umaBonus[3]} min={-30} max={30} step={1}/> %
                     <label for="umaBonus.4">Wisdom</label>
-                    <NumericInput onChange={this.onGeneralSettingChanged} type="number" id="umaBonus.4" value={this.state.general.umaBonus[4]} min={0.7} max={1.3} step={0.01}/>
+                    <NumericInput onChange={this.onGeneralSettingChanged} type="number" id="umaBonus.4" value={this.state.general.umaBonus[4]} min={-30} max={30} step={1}/> %
                 </div>
             </div>
         );

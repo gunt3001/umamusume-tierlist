@@ -26,7 +26,7 @@ class App extends React.Component {
                     [3,0,3,8,0,2,22],
                     [2,0,0,0,8,3,0]
                 ],
-                umaBonus: [1,1,1,1,1,1],
+                umaBonus: [0,0,0,0,0,0],
                 stats: [1,1,1,0.75,1,0.5,1.5],
                 supportPenalty: 180
             },
