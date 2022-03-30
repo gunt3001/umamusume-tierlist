@@ -1,62 +1,118 @@
 import React from 'react';
 import SupportCard from './SupportCard';
 import events from '../card-events';
+import { supportCardProperties } from '../constants';
+import Select from 'react-select';
 
-function TierList(props) {
-    let cards = props.cards;
+const ordinal = ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th"];
+const type_names = ["Speed", "Stamina", "Power", "Guts", "Wisdom", "", "Friend"];
 
-    if(props.weights.type > -1) {
-        cards = cards.filter(e => e.type === props.weights.type);
-    }
+class TierList extends React.Component {
+    constructor (props) {
+        super(props);
 
-    let processedCards = processCards(cards, props.weights, props.selectedCards);
-
-    if (processedCards.length === 0) {
-        return <div className="tier-list"></div>;
-    }
-
-    let rows = [[]];
-    let current_row = 0;
-    let step = (processedCards[0].score - processedCards[processedCards.length - 1].score) / 7;
-    let boundary = processedCards[0].score - step;
-
-    for (let i = 0; i < processedCards.length; i++) {
-        while (processedCards[i].score < boundary - 1) {
-            rows.push([]);
-            current_row++;
-            boundary -= step;
+        this.state = {
+            dropdownSelections: ["none","none","none"]
         }
 
-        rows[current_row].push((
-            <SupportCard
-                id={processedCards[i].id}
-                lb={processedCards[i].lb}
-                score={processedCards[i].score}
-                key={processedCards[i].id + "LB" + processedCards[i].lb}
-                info={processedCards[i].info}
-                charName={processedCards[i].char_name}
-                faded={props.selectedCards.find((c) => c.id === processedCards[i].id)}
-                onClick={() => props.cardSelected(cards.find((c) => c.id === processedCards[i].id && c.limit_break === processedCards[i].lb))}
-            />
-        ));
+        this.onDropdown1Changed = this.onDropdown1Changed.bind(this);
+        this.onDropdown2Changed = this.onDropdown2Changed.bind(this);
+        this.onDropdown3Changed = this.onDropdown3Changed.bind(this);
     }
 
-    let tiers = [];
+    //lmao
+    onDropdown1Changed(newValue) {
+        let newSelections = this.state.dropdownSelections.slice();
+        newSelections[0] = newValue.value;
+        console.log(newValue);
+        this.setState({dropdownSelections:newSelections});
+    }
+    onDropdown2Changed(newValue) {
+        let newSelections = this.state.dropdownSelections.slice();
+        newSelections[1] = newValue.value;
+        this.setState({dropdownSelections:newSelections});
+    }
+    onDropdown3Changed(newValue) {
+        let newSelections = this.state.dropdownSelections.slice();
+        newSelections[2] = newValue.value;
+        this.setState({dropdownSelections:newSelections});
+    }
 
-    for (let i = 0; i < 7; i++) {
-        tiers.push(
-            <div className="tier" key={tierNames[i]}>
-                <div className="tier-letter">{tierNames[i]}</div>
-                <div className="tier-images">{rows[i]}</div>
+    render() {
+        let cards = this.props.cards;
+    
+        if(this.props.weights.type > -1) {
+            cards = cards.filter(e => e.type === this.props.weights.type);
+        }
+    
+        let processedCards = processCards(cards, this.props.weights, this.props.selectedCards);
+    
+        if (processedCards.length === 0) {
+            return <div className="tier-list"></div>;
+        }
+    
+        let rows = [[]];
+        let current_row = 0;
+        let step = (processedCards[0].score - processedCards[processedCards.length - 1].score) / 7;
+        let boundary = processedCards[0].score - step;
+    
+        for (let i = 0; i < processedCards.length; i++) {
+            while (processedCards[i].score < boundary - 1) {
+                rows.push([]);
+                current_row++;
+                boundary -= step;
+            }
+    
+            rows[current_row].push((
+                <SupportCard
+                    id={processedCards[i].id}
+                    lb={processedCards[i].lb}
+                    score={processedCards[i].score}
+                    key={processedCards[i].id + "LB" + processedCards[i].lb}
+                    info={processedCards[i].info}
+                    charName={processedCards[i].char_name}
+                    card={cards.find((c) => c.id === processedCards[i].id && c.limit_break === processedCards[i].lb)}
+                    onClick={() => this.props.cardSelected(cards.find((c) => c.id === processedCards[i].id && c.limit_break === processedCards[i].lb))}
+                    stats={this.state.dropdownSelections}
+                    faded={this.props.selectedCards.find((c) => c.id === processedCards[i].id)}
+                />
+            ));
+        }
+    
+        let tiers = [];
+    
+        for (let i = 0; i < 7; i++) {
+            tiers.push(
+                <div className="tier" key={tierNames[i]}>
+                    <div className="tier-letter">{tierNames[i]}</div>
+                    <div className="tier-images">{rows[i]}</div>
+                </div>
+            )
+        }
+    
+        let count = this.props.selectedCards.filter((c) => c.type == this.props.weights.type).length;
+        let dropdownOptions = [{value:"none", label:"None"}];
+        let properties = Object.keys(supportCardProperties).sort();
+        for (let i = 0; i < properties.length; i++) {
+            dropdownOptions.push({
+                value:properties[i],
+                label:supportCardProperties[properties[i]].friendly_name
+            });
+        }
+    
+        return (
+            <div className="tier-list">
+                <div className="selectors">
+                    <span className="selectLabel">Show Stats:</span>
+                    <Select className="select" options={dropdownOptions} onChange={this.onDropdown1Changed} defaultValue={{value:"none", label:"None"}}/>
+                    <Select className="select" options={dropdownOptions} onChange={this.onDropdown2Changed} defaultValue={{value:"none", label:"None"}}/>
+                    <Select className="select" options={dropdownOptions} onChange={this.onDropdown3Changed} defaultValue={{value:"none", label:"None"}}/>
+                </div>
+                <span className="label">Ranking for the {ordinal[count]} {type_names[this.props.weights.type]} card in this deck:</span>
+                {tiers}
             </div>
-        )
+        );
     }
-
-    return (
-        <div className="tier-list">
-            {tiers}
-        </div>
-    );
 }
 
 const tierNames = ['S', 'A', 'B', 'C', 'D', 'E', 'F']
@@ -75,20 +131,35 @@ function processCards(cards, weights, selectedCards) {
     
     // Calculate some stuff here so we don't have to do it a million times later
     let presentTypes = [false,false,false,false,false,false,false]
+    let baseBondNeeded = 0;
     for (let card = 0; card < selectedCards.length; card++) {
-        let cardSpecialty = (100 + selectedCards[card].specialty_rate) * selectedCards[card].unique_specialty;
+        let selectedCard = selectedCards[card];
+        let cardSpecialty = (100 + selectedCard.specialty_rate) * selectedCard.unique_specialty;
         let cardSpecialtyPercent = (cardSpecialty) / (450 + cardSpecialty)
-        selectedCards[card].rainbowSpecialty = cardSpecialtyPercent;
-        selectedCards[card].offSpecialty = 100 / (450 + cardSpecialty);
-        selectedCards[card].cardType = selectedCards[card].type;
-        presentTypes[selectedCards[card].cardType] = true;
+        selectedCard.rainbowSpecialty = cardSpecialtyPercent;
+        selectedCard.offSpecialty = 100 / (450 + cardSpecialty);
+        selectedCard.cardType = selectedCard.type;
+        presentTypes[selectedCard.cardType] = true;
+        if (selectedCard.cardType == 6) {
+            baseBondNeeded += 55 - selectedCard.sb
+        } else {
+            baseBondNeeded += 75 - selectedCard.sb
+        }
+        if (events[selectedCard.id]) {
+            baseBondNeeded -= events[selectedCard.id][7];
+        }
     }
 
     for (let i = 0; i < cards.length; i++) {
         let info = {};
         let card = cards[i];
         let cardType = card.type;
-        let bondNeeded = 80 - card.starting_bond;
+        let bondNeeded = baseBondNeeded;
+        if (cardType == 6) {
+            bondNeeded += 55 - card.sb
+        } else {
+            bondNeeded += 75 - card.sb
+        }
         let presentTypesWithCard = presentTypes.slice();
         presentTypesWithCard[cardType] = true;
 
@@ -125,6 +196,21 @@ function processCards(cards, weights, selectedCards) {
             }
         }
 
+        if (card.type_stats > 0) {
+            statGains[card.type] += card.type_stats;
+            for (let sc = 0; sc < selectedCards.length; sc++) {
+                if(selectedCards[sc].type < 6) {
+                    statGains[selectedCards[sc].type] += card.type_stats;
+                } else {
+                    statGains[0] += card.type_stats / 5;
+                    statGains[1] += card.type_stats / 5;
+                    statGains[2] += card.type_stats / 5;
+                    statGains[3] += card.type_stats / 5;
+                    statGains[4] += card.type_stats / 5;
+                }
+            }
+        }
+
         let trainingDays = 65 - weights.races[0] - weights.races[1] - weights.races[2];
         let daysToBond = bondNeeded / weights.bondPerDay;
         let rainbowDays = trainingDays - daysToBond;
@@ -144,6 +230,16 @@ function processCards(cards, weights, selectedCards) {
                 daysPerTraining[stat] = otherPercent / 4 * daysToBond;
                 bondedDaysPerTraining[stat] = otherPercent / 4 * rainbowDays;
             }
+        }
+
+        if (card.fs_ramp[0] > 0) {
+            let current_bonus = 0;
+            let total = 0;
+            for (let j = rainbowTraining * 0.75; j > 0; j--) {
+                total += current_bonus;
+                current_bonus = Math.min(current_bonus + card.fs_ramp[0], card.fs_ramp[1]);
+            }
+            card.unique_fs_bonus = 1 + total / rainbowTraining / 100;
         }
 
         // Stats from cross-training
@@ -227,13 +323,13 @@ function processCards(cards, weights, selectedCards) {
 function CalculateTrainingGain(gains, weights, card, otherCards, trainingType, days, rainbow, typeCount) {
     let trainingGains = [0,0,0,0,0,0,0];
 
-    let trainingBonus = card.training_bonus;
+    let trainingBonus = card.tb;
     if (typeCount >= card.highlander_threshold) trainingBonus += card.highlander_training;
-    let friendshipBonus = 1;
-    let motivationBonus = card.motivation_bonus;
+    let fsBonus = 1;
+    let motivationBonus = card.mb;
     if (rainbow) {
-        friendshipBonus = card.friendship_bonus * card.unique_friendship_bonus;
-        motivationBonus += card.friendship_motivation;
+        fsBonus = card.fs_bonus * card.unique_fs_bonus;
+        motivationBonus += card.fs_motivation;
     }
 
     let soloGain = [0,0,0,0,0,0];
@@ -242,12 +338,12 @@ function CalculateTrainingGain(gains, weights, card, otherCards, trainingType, d
 
         let base = gains[stat] + card.stat_bonus[stat];
         if (rainbow) {
-            base += card.friendship_stats[stat];
+            base += card.fs_stats[stat];
         }
         soloGain[stat] += (base 
             * trainingBonus
-            * (1 + 0.2 * motivationBonus)
-            * friendshipBonus
+            * (1 + weights.motivation * motivationBonus)
+            * fsBonus
             * 1.05
             * weights.umaBonus[stat]
             - gains[stat]);
@@ -272,37 +368,37 @@ function CalculateTrainingGain(gains, weights, card, otherCards, trainingType, d
             if (gains[stat] === 0) continue;
 
             let combinationTrainingBonus = combinations[i].reduce((current, c) => {
-                let training = current + c.training_bonus - 1;
+                let training = current + c.tb - 1;
                 if (typeCount >= c.highlander_threshold)
                     training += c.highlander_training;
                 return training;
             }, 1);
             let combinationFriendshipBonus = combinations[i].reduce((current, c) => {
                 if (c.cardType === trainingType) {
-                    return current * c.friendship_bonus * c.unique_friendship_bonus;
+                    return current * c.fs_bonus * c.unique_fs_bonus;
                 } else {
                     return current;
                 }
             }, 1);
-            let combinationMotivationBonus = combinations[i].reduce((current, c) => current + c.motivation_bonus - 1, 1);
+            let combinationMotivationBonus = combinations[i].reduce((current, c) => current + c.mb - 1, 1);
             let combinationStatBonus = combinations[i].reduce((current, c) => current + c.stat_bonus[stat], 0);
 
             let base = gains[stat] + combinationStatBonus;
             if (rainbow) {
-                base += card.friendship_stats[stat];
+                base += card.fs_stats[stat];
             }
 
             let combinationGains = (base 
                 * combinationTrainingBonus
-                * (1 + 0.2 * combinationMotivationBonus)
+                * (1 + weights.motivation * combinationMotivationBonus)
                 * combinationFriendshipBonus
                 * (1.05 * combinations[i].length)
                 * weights.umaBonus[stat]);
                 
             let totalGains = ((base + card.stat_bonus[stat])
                 * (combinationTrainingBonus + trainingBonus - 1)
-                * (1 + 0.2 * (combinationMotivationBonus + motivationBonus - 1))
-                * (combinationFriendshipBonus * friendshipBonus)
+                * (1 + weights.motivation * (combinationMotivationBonus + motivationBonus - 1))
+                * (combinationFriendshipBonus * fsBonus)
                 * (1.05 * (combinations[i].length + 1))
                 * weights.umaBonus[stat]);
             
@@ -325,11 +421,11 @@ function CalculateTrainingGain(gains, weights, card, otherCards, trainingType, d
 function CalculateCrossTrainingGain(gains, weights, card, otherCards, trainingType, days, typeCount, bonded) {
     let trainingGains = [0,0,0,0,0,0,0];
     let statCards = otherCards.filter((c) => c.cardType === trainingType);
-    let trainingBonus = card.training_bonus;
+    let trainingBonus = card.tb;
     if (typeCount >= card.highlander_threshold) trainingBonus += card.highlander_training;
-    let friendshipBonus = 1;
+    let fsBonus = 1;
     if (card.group && bonded) {
-        friendshipBonus = card.friendship_bonus + card.unique_friendship_bonus;
+        fsBonus = card.fs_bonus + card.unique_fs_bonus;
     }
     const combinations = GetCombinations(otherCards);
 
@@ -342,42 +438,42 @@ function CalculateCrossTrainingGain(gains, weights, card, otherCards, trainingTy
             if(!combination.some((r) => statCards.indexOf(r) > -1)) continue;
 
             let combinationTrainingBonus = combination.reduce((current, c) => {
-                let training = current + c.training_bonus - 1;
+                let training = current + c.tb - 1;
                 if (typeCount >= c.highlander_threshold)
                     training += c.highlander_training;
                 return training;
             }, 1);
             let combinationFriendshipBonus = combination.reduce((current, c) => {
                 if (c.cardType === trainingType) {
-                    return current * c.friendship_bonus * c.unique_friendship_bonus;
+                    return current * c.fs_bonus * c.unique_fs_bonus;
                 } else {
                     return current;
                 }
             }, 1);
-            let combinationMotivationBonus = combination.reduce((current, c) => current + c.motivation_bonus - 1, 1);
+            let combinationMotivationBonus = combination.reduce((current, c) => current + c.mb - 1, 1);
             let combinationStatBonus = combination.reduce((current, c) => current + c.stat_bonus[stat], 0);
 
             const base = gains[stat] + combinationStatBonus;
 
             let combinationGains = (base 
                 * combinationTrainingBonus
-                * (1 + 0.2 * combinationMotivationBonus)
+                * (1 + weights.motivation * combinationMotivationBonus)
                 * combinationFriendshipBonus
                 * (1.05 * combination.length)
                 * weights.umaBonus[stat]);
             
             let totalGains = 0;
             if (bonded) {
-                totalGains = ((base + card.stat_bonus[stat] + card.friendship_stats[stat])
-                    * (combinationTrainingBonus + trainingBonus + card.friendship_training - 1)
-                    * (1 + 0.2 * (combinationMotivationBonus + card.motivation_bonus + card.friendship_motivation - 1))
-                    * (combinationFriendshipBonus * friendshipBonus)
+                totalGains = ((base + card.stat_bonus[stat] + card.fs_stats[stat])
+                    * (combinationTrainingBonus + trainingBonus + card.fs_training - 1)
+                    * (1 + weights.motivation * (combinationMotivationBonus + card.mb + card.fs_motivation - 1))
+                    * (combinationFriendshipBonus * fsBonus)
                     * (1.05 * (combination.length + 1))
                     * weights.umaBonus[stat]);
             } else {
                 totalGains = ((base + card.stat_bonus[stat])
                     * (combinationTrainingBonus + trainingBonus - 1)
-                    * (1 + 0.2 * (combinationMotivationBonus + card.motivation_bonus - 1))
+                    * (1 + weights.motivation * (combinationMotivationBonus + card.mb - 1))
                     * (1.05 * (combination.length + 1))
                     * weights.umaBonus[stat]);
             }

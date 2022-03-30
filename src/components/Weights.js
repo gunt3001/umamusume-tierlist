@@ -10,12 +10,12 @@ import { lsTest } from '../utils';
 
 function defaultState() {
     return {
-        version: 3,
+        version: 5,
         currentState: "speed",
         show: false,
         general: {
-            bondPerDay: 2.5,
-            races: [10,10,5,3],
+            bondPerDay: 20,
+            races: [10,15,2,3],
             trainingGain: [
                 [10,0,4,0,0,2,21],
                 [0,9,0,3,0,2,19],
@@ -25,6 +25,7 @@ function defaultState() {
             ],
             umaBonus: [1,1,1,1,1,1],
             multi: 1.4,
+            motivation: 0.2
         },
         speed: {
             type: 0,
@@ -75,6 +76,7 @@ class Weights extends React.Component {
         this.onCapChanged = this.onCapChanged.bind(this);
         this.onMinimumChanged = this.onMinimumChanged.bind(this);
         this.onToggleWeights = this.onToggleWeights.bind(this);
+        this.onMotivationChanged = this.onMotivationChanged.bind(this);
         this.onReset = this.onReset.bind(this);
 
         if(lsTest()) {
@@ -152,6 +154,15 @@ class Weights extends React.Component {
         this.props.onChange(this.state[this.state.currentState], settings);
     }
 
+    onMotivationChanged(event) {
+        let settings = this.state.general;
+        settings.motivation = event.target.value;
+        let newSettings = {};
+        newSettings.general = settings;
+        this.setState(newSettings);
+        this.props.onChange(this.state[this.state.currentState], settings);
+    }
+
     onTypeChanged(event) {
         this.setState({
             currentState: event.target.id
@@ -205,10 +216,11 @@ class Weights extends React.Component {
                     <div className="weight-row">
                         <div class="section-header">Bond Rate</div>
                         <div class="section-explanation">
-                            The fewer bond per turn, the more Starting Bond matters.
+                            The fewer bond per turn, the more Starting Bond matters.<br/>
+                            This is the bond over every card, so 14 = two cards per day, etc.
                         </div>
                         <label for="bondPerDay">Bond Gained per Turn:</label>
-                        <NumericInput onChange={this.onGeneralSettingChanged} type="number" id="bondPerDay" value={this.state.general.bondPerDay} min={1} max={9} step={0.25}/>
+                        <NumericInput onChange={this.onGeneralSettingChanged} type="number" id="bondPerDay" value={this.state.general.bondPerDay} min={1} max={50} step={0.1}/>
                     </div>
                     <div className="weight-row">
                         <div class="section-header">Optional Races</div>
@@ -250,6 +262,14 @@ class Weights extends React.Component {
                         <NumericInput onChange={this.onSettingChanged} type="number" id="stats.5" value={this.state[this.state.currentState].stats[5]} min={0} max={3} step={0.1}/>
                         <label for="stats.6">Energy</label>
                         <NumericInput onChange={this.onSettingChanged} type="number" id="stats.6" value={this.state[this.state.currentState].stats[6]} min={0} max={3} step={0.1}/>
+                    </div>
+                    <div className="weight-row">
+                        <div class="section-header">Average Motivation</div>
+                        <div class="section-explanation">
+                            You get 10% per motivation stage. This affects Motivation Bonus.
+                        </div>
+                        <input type="range" onChange={this.onMotivationChanged} min={-0.2} max={0.2} step={0.05} value={this.state.general.motivation} class="slider" id="motivation"/>
+                        <label for="minimum">{this.state.general.motivation * 100}%</label>
                     </div>
                     <div className="weight-row">
                         <div class="section-header">Stat Cap</div>
