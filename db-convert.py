@@ -35,6 +35,7 @@ class Card():
     fail_rate_down = 0
     highlander_threshold = 0
     highlander_training = 0
+    crowd_bonus = 0
     char_name = "Unknown"
 
 def GetValue(data, lb, rarity):
@@ -131,6 +132,8 @@ def AddEffectToCard(card, effect_type, effect_value):
     elif effect_type == 104:
         #fan training
         card.tb += 0.15
+    elif effect_type == 110:
+        card.crowd_bonus += 0.05
 
 cards = []
 
@@ -184,6 +187,7 @@ with sqlite3.connect(dblocation) as conn:
             current_card.hint_rate = 1
             current_card.highlander_threshold = 4
             current_card.highlander_training = 0
+            current_card.crowd_bonus = 0
             current_card.char_name = ""
 
             for effect in effects:
@@ -210,17 +214,41 @@ with sqlite3.connect(dblocation) as conn:
                         if bonus_type == 2:
                             current_card.fs_motivation += bonus_value / 100
                         if bonus_type == 3:
-                            current_card.fs_stats[0] += bonus_value
+                            if (bonus_value > 1):
+                                current_card.fs_stats[0] += bonus_value
+                            else:
+                                current_card.fs_stats[0] += 1
+                                current_card.fs_stats[5] += 1
                         elif bonus_type == 4:
                             current_card.fs_stats[1] += bonus_value
+                        if bonus_type == 5:
+                            if (bonus_value > 1):
+                                current_card.fs_stats[2] += bonus_value
+                            else:
+                                current_card.fs_stats[2] += 1
+                                current_card.fs_stats[5] += 1
                         elif bonus_type == 7:
-                            current_card.fs_stats[4] += bonus_value
+                            if(bonus_value > 1):
+                                current_card.fs_stats[4] += bonus_value
+                            else:
+                                current_card.fs_stats[4] += 1
+                                current_card.fs_stats[5] += 1
                         elif bonus_type == 8:
                             current_card.fs_training += bonus_value / 100
+                        elif bonus_type == 30:
+                            current_card.fs_stats[5] += 2
+                        elif bonus_type == 31:
+                            current_card.wisdom_recovery += bonus_value
                     elif type_0 == 106:
                         current_card.fs_ramp = [3,15]
                     elif type_0 == 105:
                         current_card.type_stats = 10
+                    elif type_0 == 108:
+                        current_card.tb += 0.12
+                    elif type_0 == 109:
+                        current_card.tb += 0.15
+                    elif type_0 == 107:
+                        current_card.unique_fs_bonus += 0.07
                     else:
                         AddEffectToCard(current_card, type_0, int(unique[3 + u]))
             cards.append(current_card)
