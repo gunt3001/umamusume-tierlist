@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/umamusume-tierlist/static/css/main.461b28e2.css",
-    "main.js": "/umamusume-tierlist/static/js/main.0a2fe92a.js",
+    "main.js": "/umamusume-tierlist/static/js/main.3701e55f.js",
     "static/js/787.265e4373.chunk.js": "/umamusume-tierlist/static/js/787.265e4373.chunk.js",
     "index.html": "/umamusume-tierlist/index.html",
     "main.461b28e2.css.map": "/umamusume-tierlist/static/css/main.461b28e2.css.map",
-    "main.0a2fe92a.js.map": "/umamusume-tierlist/static/js/main.0a2fe92a.js.map",
+    "main.3701e55f.js.map": "/umamusume-tierlist/static/js/main.3701e55f.js.map",
     "787.265e4373.chunk.js.map": "/umamusume-tierlist/static/js/787.265e4373.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.461b28e2.css",
-    "static/js/main.0a2fe92a.js"
+    "static/js/main.3701e55f.js"
   ]
 }
